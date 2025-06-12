@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -20,6 +21,12 @@ func snippetView(w http.ResponseWriter, r *http.Request) {
 func snippetCreate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.Header().Set("Allow", "POST")
+		w.Header().Set("Cache-Control", "public, max-age=31536000")
+		w.Header().Add("Cache-Control", "public")
+		w.Header().Add("Cache-Control", "max-age=31536000")
+		w.Header().Del("Cache-Control")
+		fmt.Println(w.Header().Get("Cache-Control"))
+		fmt.Println(w.Header().Values("Cache-Control"))
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
