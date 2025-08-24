@@ -1,6 +1,8 @@
 module snippet.bekanay.net
 
-go 1.22
+go 1.23.0
+
+toolchain go1.24.4
 
 require github.com/go-sql-driver/mysql v1.9.3
 
@@ -11,4 +13,5 @@ require (
 	github.com/go-playground/form/v4 v4.2.1 // indirect
 	github.com/julienschmidt/httprouter v1.3.0 // indirect
 	github.com/justinas/alice v1.2.0 // indirect
+	golang.org/x/crypto v0.41.0 // indirect
 )
