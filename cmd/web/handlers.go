@@ -163,6 +163,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 
 	err := app.decodePostForm(r, &form)
 	if err != nil {
+		app.errorLog.Printf("login decode error: %v", err)
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
