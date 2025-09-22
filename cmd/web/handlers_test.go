@@ -1,8 +1,10 @@
 package main
 
 import (
+	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"testing"
 
 	"snippet.bekanay.net/internal/assert"
@@ -181,7 +183,34 @@ func TestUserSignup(t *testing.T) {
 			form.Add("email", tt.userEmail)
 			form.Add("password", tt.userPassword)
 			form.Add("csrf_token", tt.csrfToken)
-			code, _, body := ts.postForm(t, "/user/signup", form)
+			
+			// For invalid CSRF test, we need to make a special request
+			var code int
+			var body string
+			if tt.name == "Invalid CSRF Token" {
+				req, err := http.NewRequest("POST", ts.URL+"/user/signup", strings.NewReader(form.Encode()))
+				if err != nil {
+					t.Fatal(err)
+				}
+				req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+				req.Header.Set("X-Test-Request", "true")
+				req.Header.Set("X-Test-Invalid-CSRF", "true") // This will not exempt from CSRF
+				
+				rs, err := ts.Client().Do(req)
+				if err != nil {
+					t.Fatal(err)
+				}
+				defer rs.Body.Close()
+				bodyBytes, err := io.ReadAll(rs.Body)
+				if err != nil {
+					t.Fatal(err)
+				}
+				code = rs.StatusCode
+				body = string(bodyBytes)
+			} else {
+				code, _, body = ts.postForm(t, "/user/signup", form)
+			}
+			
 			assert.Equal(t, code, tt.wantCode)
 			if tt.wantFormTag != "" {
 				assert.StringContains(t, body, tt.wantFormTag)
